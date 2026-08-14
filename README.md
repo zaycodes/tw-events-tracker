@@ -23,6 +23,14 @@ auto-published.
    `scripts/scrape.mjs` every Monday, which pulls from source adapters in
    `scripts/sources/` and opens a PR with anything new.
 
+## Resources
+
+Other places worth checking for events:
+
+- [Write the Docs](https://www.writethedocs.org/conf/) — conference index
+- [confs.tech](https://confs.tech/) — general tech conference listing
+- [developers-conferences-agenda](https://github.com/scraly/developers-conferences-agenda) — community-maintained developer conference/CFP list
+
 ## Local development
 
 ```

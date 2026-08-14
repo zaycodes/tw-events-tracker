@@ -10,6 +10,8 @@ import { fileURLToPath } from "node:url";
 import { validateEvent, buildFilename } from "./lib/schema.mjs";
 import { loadExistingEvents, isDuplicate } from "./lib/dedupe.mjs";
 import * as writeTheDocs from "./sources/writethedocs.mjs";
+import * as confsTech from "./sources/confstech.mjs";
+import * as devConfsAgenda from "./sources/devconfsagenda.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const EVENTS_DIR = path.join(__dirname, "..", "src", "content", "events");
@@ -35,7 +37,16 @@ const EVENTS_DIR = path.join(__dirname, "..", "src", "content", "events");
 //     lists dated (not just ongoing) events
 //
 // Papercall.io is shutting down August 31, 2026 — deliberately not used.
-const SOURCES = [{ name: "Write the Docs", module: writeTheDocs }];
+//
+// Outreachy and LFX Mentorship have no public API/JSON — their term/round
+// dates are predictable enough (Outreachy: ~May and ~Dec; LFX: ~Jan and
+// ~Apr) that they're better tracked as a manual calendar note than a real
+// adapter, at least until one of them publishes something structured.
+const SOURCES = [
+  { name: "Write the Docs", module: writeTheDocs },
+  { name: "confs.tech", module: confsTech },
+  { name: "developers-conferences-agenda", module: devConfsAgenda },
+];
 
 async function main() {
   const existing = await loadExistingEvents(EVENTS_DIR);
@@ -64,6 +75,12 @@ async function main() {
       const { valid, errors } = validateEvent(event);
       if (!valid) {
         skipped.push(`[${name}] "${event.name}" invalid: ${errors.join(", ")}`);
+        continue;
+      }
+
+      // No point proposing something that already happened.
+      const endOrStart = new Date(event.endDate ?? event.startDate);
+      if (endOrStart < new Date()) {
         continue;
       }
 

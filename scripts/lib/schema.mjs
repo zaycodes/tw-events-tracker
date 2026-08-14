@@ -14,6 +14,9 @@ export const VALID_TAGS = [
   "conference",
   "cfp-open",
   "mentorship",
+  "content-strategy",
+  "information-architecture",
+  "api-docs",
 ];
 
 export function slugify(text) {

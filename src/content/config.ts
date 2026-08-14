@@ -14,6 +14,9 @@ export const TAGS = [
   "conference",
   "cfp-open",
   "mentorship",
+  "content-strategy",
+  "information-architecture",
+  "api-docs",
 ] as const;
 
 // Deadlines are kept as raw strings, not z.coerce.date(), so the component

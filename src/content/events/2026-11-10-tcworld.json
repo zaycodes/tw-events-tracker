@@ -1,0 +1,14 @@
+{
+  "name": "tcworld 2026",
+  "url": "https://tcworldconference.tekom.de",
+  "organizer": "tekom",
+  "format": "in-person",
+  "location": "Stuttgart, Germany",
+  "startDate": "2026-11-10",
+  "endDate": "2026-11-12",
+  "cost": "paid",
+  "tags": ["technical-writing", "documentation", "conference"],
+  "description": "tekom's flagship conference — one of the largest technical communication events in Europe, alongside the tcworld trade fair.",
+  "source": "curated",
+  "addedDate": "2026-08-14"
+}
