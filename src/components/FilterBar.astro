@@ -1,8 +1,13 @@
 ---
 interface Props {
   tags: readonly string[];
+  /** Shows a "sort by deadline" control that swaps between the grouped
+   * (by year/month) view and a flat list ordered by soonest deadline.
+   * Only meaningful where events have live deadlines — omit on the past
+   * events page. */
+  showSort?: boolean;
 }
-const { tags } = Astro.props;
+const { tags, showSort = false } = Astro.props;
 ---
 
 <div class="filters">
@@ -21,6 +26,13 @@ const { tags } = Astro.props;
     <option value="paid">Paid</option>
     <option value="unknown">Unknown</option>
   </select>
+
+  {showSort && (
+    <select id="sort-mode" aria-label="Sort events">
+      <option value="grouped">Grouped by month</option>
+      <option value="deadline">Deadline (soonest first)</option>
+    </select>
+  )}
 </div>
 
 <div class="tag-filters" id="tag-filters">
@@ -84,9 +96,11 @@ const { tags } = Astro.props;
   const search = document.getElementById("search") as HTMLInputElement;
   const formatFilter = document.getElementById("format-filter") as HTMLSelectElement;
   const costFilter = document.getElementById("cost-filter") as HTMLSelectElement;
+  const sortMode = document.getElementById("sort-mode") as HTMLSelectElement | null;
   const tagButtons = document.querySelectorAll<HTMLButtonElement>(".tag-toggle");
-  const cards = document.querySelectorAll<HTMLElement>(".card");
   const emptyState = document.getElementById("empty-state");
+  const groupedView = document.getElementById("event-list");
+  const deadlineView = document.getElementById("deadline-view");
 
   const activeTags = new Set<string>();
 
@@ -95,6 +109,12 @@ const { tags } = Astro.props;
     const format = formatFilter.value;
     const cost = costFilter.value;
     let visibleCount = 0;
+
+    // Re-queried each time (rather than cached once) since sort-mode
+    // switches which container's cards are actually on screen.
+    const activeContainer =
+      sortMode?.value === "deadline" && deadlineView ? deadlineView : groupedView;
+    const cards = activeContainer?.querySelectorAll<HTMLElement>(".card") ?? [];
 
     cards.forEach((card) => {
       const cardTags = (card.dataset.tags ?? "").split(",");
@@ -122,9 +142,18 @@ const { tags } = Astro.props;
     }
   }
 
+  function applySortMode() {
+    if (!sortMode || !groupedView || !deadlineView) return;
+    const deadline = sortMode.value === "deadline";
+    groupedView.style.display = deadline ? "none" : "";
+    deadlineView.style.display = deadline ? "" : "none";
+    applyFilters();
+  }
+
   search.addEventListener("input", applyFilters);
   formatFilter.addEventListener("change", applyFilters);
   costFilter.addEventListener("change", applyFilters);
+  sortMode?.addEventListener("change", applySortMode);
   tagButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const tag = btn.dataset.tag!;

@@ -39,7 +39,7 @@ const years = [...byYear.keys()].sort((a, b) => a - b);
     refreshed weekly and open to community submissions.
   </p>
 
-  <FilterBar tags={TAGS} />
+  <FilterBar tags={TAGS} showSort />
 
   <div id="event-list">
     {years.map((year) => (
@@ -55,6 +55,14 @@ const years = [...byYear.keys()].sort((a, b) => a - b);
         ))}
       </section>
     ))}
+  </div>
+
+  {/* Flat list, already sorted deadline-soonest-first (same `upcoming` order
+      as above, just not bucketed by year/month) — toggled into view by the
+      "Sort" control in FilterBar. Rendered at build time either way, so
+      switching is a plain visibility swap with no client-side re-sorting. */}
+  <div id="deadline-view" class="event-stack" style="display: none;">
+    {upcoming.map((event) => <EventCard event={event} />)}
   </div>
 
   <p id="empty-state" class="muted" style="display: none;">
