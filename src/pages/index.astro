@@ -33,11 +33,30 @@ const years = [...byYear.keys()].sort((a, b) => a - b);
 ---
 
 <Layout title="Technical Writing & No-Code Events Tracker">
-  <h1>Upcoming events</h1>
-  <p class="muted">
-    Conferences, community meetups, webinars, and no-code events for technical writers —
-    refreshed weekly and open to community submissions.
-  </p>
+  <section class="hero">
+    <div class="hero-shapes" aria-hidden="true">
+      <span class="shape shape--blob-coral"></span>
+      <span class="shape shape--blob-teal"></span>
+      <span class="shape shape--blob-gold"></span>
+      <span class="shape shape--blob-purple"></span>
+      <span class="shape shape--sparkle shape--sparkle-1">✦</span>
+      <span class="shape shape--sparkle shape--sparkle-2">✦</span>
+      <span class="shape shape--dot shape--dot-1"></span>
+      <span class="shape shape--dot shape--dot-2"></span>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">✨ Refreshed weekly</p>
+      <h1 class="hero-title">Upcoming events</h1>
+      <p class="hero-sub">
+        Conferences, community meetups, webinars, and no-code events for technical writers —
+        open to community submissions.
+      </p>
+      <p class="hero-stat">
+        Tracking <strong>{upcoming.length}</strong> upcoming event{upcoming.length === 1 ? "" : "s"}
+        across <strong>{years.length}</strong> year{years.length === 1 ? "" : "s"}
+      </p>
+    </div>
+  </section>
 
   <FilterBar tags={TAGS} showSort />
 
@@ -75,6 +94,151 @@ const years = [...byYear.keys()].sort((a, b) => a - b);
 </Layout>
 
 <style>
+  /* Full-bleed: break out of .wrap's centered max-width so the gradient
+     spans the whole viewport, while .hero-content below stays aligned to
+     the same max-width as the rest of the page. */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    width: auto;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -1px;
+    margin-bottom: 2.5rem;
+    padding: 3.5rem 0;
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 45%, #4c1d95 100%);
+    isolation: isolate;
+  }
+  :root[data-theme="dark"] .hero {
+    background: linear-gradient(135deg, #5b21b6 0%, #4c1d95 45%, #2e1065 100%);
+  }
+
+  .hero-shapes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .shape--blob-coral,
+  .shape--blob-teal,
+  .shape--blob-gold,
+  .shape--blob-purple {
+    filter: blur(60px);
+    opacity: 0.5;
+  }
+  .shape--blob-coral {
+    width: 260px;
+    height: 260px;
+    top: -90px;
+    right: 12%;
+    background: #fb7185;
+  }
+  .shape--blob-teal {
+    width: 220px;
+    height: 220px;
+    bottom: -80px;
+    left: 8%;
+    background: #2dd4bf;
+    opacity: 0.4;
+  }
+  .shape--blob-gold {
+    width: 160px;
+    height: 160px;
+    top: 25%;
+    right: 32%;
+    background: #fbbf24;
+    opacity: 0.3;
+  }
+  .shape--blob-purple {
+    width: 200px;
+    height: 200px;
+    bottom: -60px;
+    right: -40px;
+    background: #c4b5fd;
+    opacity: 0.35;
+  }
+  .shape--dot {
+    width: 14px;
+    height: 14px;
+    background: #fbbf24;
+    opacity: 0.7;
+  }
+  .shape--dot-1 {
+    top: 24%;
+    left: 5%;
+  }
+  .shape--dot-2 {
+    bottom: 20%;
+    left: 46%;
+    width: 9px;
+    height: 9px;
+    background: #2dd4bf;
+    opacity: 0.6;
+  }
+  .shape--sparkle {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 1.4rem;
+  }
+  .shape--sparkle-1 {
+    top: 20%;
+    left: 38%;
+  }
+  .shape--sparkle-2 {
+    bottom: 22%;
+    left: 22%;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    margin: 0 0 0.75rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .hero-title {
+    margin: 0 0 0.6rem;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: #fff;
+  }
+  .hero-sub {
+    max-width: 46rem;
+    margin: 0 0 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.02rem;
+  }
+  .hero-stat {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .hero-stat strong {
+    color: #fff;
+    font-family: var(--font-display);
+  }
+
   .year-group {
     margin-top: 2rem;
     scroll-margin-top: 1rem;

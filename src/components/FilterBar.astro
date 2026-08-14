@@ -13,68 +13,285 @@ const { tags, showSort = false } = Astro.props;
 <div class="filters">
   <input id="search" type="search" placeholder="Search events…" aria-label="Search events" />
 
-  <select id="format-filter" aria-label="Filter by format">
-    <option value="">All formats</option>
-    <option value="virtual">Virtual</option>
-    <option value="in-person">In-person</option>
-    <option value="hybrid">Hybrid</option>
-  </select>
+  <div class="filter-dropdown">
+    <button type="button" id="filter-toggle" class="filter-toggle-btn" aria-expanded="false" aria-controls="filter-panel">
+      <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      Filters
+      <span class="filter-count" id="filter-count" hidden>0</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
 
-  <select id="cost-filter" aria-label="Filter by cost">
-    <option value="">Any cost</option>
-    <option value="free">Free</option>
-    <option value="paid">Paid</option>
-    <option value="unknown">Unknown</option>
-  </select>
+    <div class="filter-panel" id="filter-panel" hidden>
+      <div class="filter-panel-header">
+        <span>Filter events</span>
+        <button type="button" id="filter-clear" class="filter-clear" disabled>Clear all</button>
+      </div>
 
-  {showSort && (
-    <select id="sort-mode" aria-label="Sort events">
-      <option value="grouped">Grouped by month</option>
-      <option value="deadline">Deadline (soonest first)</option>
-    </select>
-  )}
-</div>
+      <div class="filter-panel-selects">
+        <label class="select-wrap">
+          <span class="select-label">Format</span>
+          <select id="format-filter" aria-label="Filter by format">
+            <option value="">All formats</option>
+            <option value="virtual">Virtual</option>
+            <option value="in-person">In-person</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </label>
 
-<div class="tag-filters" id="tag-filters">
-  <button type="button" class="tag-toggle tag-toggle--urgent" data-tag="deadline-soon">⏰ Deadline soon</button>
-  {tags.map((tag) => (
-    <button type="button" class="tag-toggle" data-tag={tag}>{tag}</button>
-  ))}
+        <label class="select-wrap">
+          <span class="select-label">Cost</span>
+          <select id="cost-filter" aria-label="Filter by cost">
+            <option value="">Any cost</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+
+        {showSort && (
+          <label class="select-wrap">
+            <span class="select-label">Sort</span>
+            <select id="sort-mode" aria-label="Sort events">
+              <option value="grouped">Grouped by month</option>
+              <option value="deadline">Deadline (soonest first)</option>
+            </select>
+          </label>
+        )}
+      </div>
+
+      <div class="tag-filters" id="tag-filters">
+        <button type="button" class="tag-toggle tag-toggle--urgent" data-tag="deadline-soon">⏰ Deadline soon</button>
+        {tags.map((tag) => (
+          <button type="button" class="tag-toggle" data-tag={tag}>{tag}</button>
+        ))}
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
   .filters {
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
     gap: 0.6rem;
-    margin: 1.25rem 0 0.75rem;
-  }
-  .filters input,
-  .filters select {
-    padding: 0.45rem 0.7rem;
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    background: var(--bg);
-    color: var(--text);
+    margin: 1.25rem 0 1.5rem;
+    position: relative;
   }
   #search {
     flex: 1;
     min-width: 180px;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--text);
+    transition: border-color 0.15s ease;
   }
+  #search:hover {
+    border-color: var(--border-strong);
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .filter-dropdown {
+    position: relative;
+  }
+  .filter-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .filter-toggle-btn:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-subtle);
+  }
+  .filter-toggle-btn[aria-expanded="true"] {
+    border-color: var(--accent);
+    background: var(--accent-wash);
+    color: var(--accent);
+  }
+  .filter-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  .chevron {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .filter-toggle-btn[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+  .filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.3rem;
+    height: 1.3rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .filter-panel {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    z-index: 30;
+    width: min(420px, 90vw);
+    padding: 1.1rem 1.1rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transform-origin: top right;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  .filter-panel.filter-panel--open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  /* Colorful accent strip along the top, echoing the hero's palette. */
+  .filter-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #7c3aed, #fb7185 45%, #2dd4bf 80%, #fbbf24);
+  }
+  /* Small caret pointing back up to the toggle button. */
+  .filter-panel::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 1.1rem;
+    width: 12px;
+    height: 12px;
+    background: var(--bg-elevated);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+  }
+
+  .filter-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .filter-clear {
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .filter-clear:hover {
+    text-decoration: underline;
+  }
+  .filter-clear:disabled {
+    color: var(--text-muted);
+    opacity: 0.5;
+    cursor: default;
+  }
+  .filter-clear:disabled:hover {
+    text-decoration: none;
+  }
+
+  .filter-panel-selects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .select-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 120px;
+  }
+  .select-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+  .select-wrap select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.55rem 2rem 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23625d58' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 14px;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .select-wrap select:hover {
+    border-color: var(--border-strong);
+  }
+  .select-wrap select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+
   .tag-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin-bottom: 1.5rem;
   }
   .tag-toggle {
     border: 1px solid var(--border);
-    background: var(--bg);
+    background: var(--bg-elevated);
     color: var(--text-muted);
     border-radius: 999px;
-    padding: 0.25rem 0.7rem;
+    padding: 0.3rem 0.75rem;
     font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .tag-toggle:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-subtle);
   }
   .tag-toggle.active {
     background: var(--accent);
@@ -90,6 +307,13 @@ const { tags, showSort = false } = Astro.props;
     border-color: #f59e0b;
     color: #1c1917;
   }
+
+  @media (max-width: 480px) {
+    .filter-panel {
+      right: auto;
+      left: 0;
+    }
+  }
 </style>
 
 <script>
@@ -102,7 +326,20 @@ const { tags, showSort = false } = Astro.props;
   const groupedView = document.getElementById("event-list");
   const deadlineView = document.getElementById("deadline-view");
 
+  const filterToggle = document.getElementById("filter-toggle") as HTMLButtonElement;
+  const filterPanel = document.getElementById("filter-panel") as HTMLElement;
+  const filterCount = document.getElementById("filter-count") as HTMLElement;
+  const filterClear = document.getElementById("filter-clear") as HTMLButtonElement;
+
   const activeTags = new Set<string>();
+
+  function updateFilterCount() {
+    const count =
+      (formatFilter.value ? 1 : 0) + (costFilter.value ? 1 : 0) + activeTags.size;
+    filterCount.textContent = String(count);
+    filterCount.hidden = count === 0;
+    filterClear.disabled = count === 0;
+  }
 
   function applyFilters() {
     const query = search.value.trim().toLowerCase();
@@ -140,6 +377,8 @@ const { tags, showSort = false } = Astro.props;
     if (emptyState) {
       emptyState.style.display = visibleCount === 0 ? "block" : "none";
     }
+
+    updateFilterCount();
   }
 
   function applySortMode() {
@@ -149,6 +388,46 @@ const { tags, showSort = false } = Astro.props;
     deadlineView.style.display = deadline ? "" : "none";
     applyFilters();
   }
+
+  // Two-step open/close so the opacity/transform transition on
+  // .filter-panel--open actually has something to animate from — toggling
+  // the `hidden` attribute alone jumps straight between display:none and
+  // display:block with no intermediate frame.
+  function openPanel() {
+    filterPanel.hidden = false;
+    requestAnimationFrame(() => filterPanel.classList.add("filter-panel--open"));
+    filterToggle.setAttribute("aria-expanded", "true");
+  }
+  function closePanel() {
+    filterPanel.classList.remove("filter-panel--open");
+    filterToggle.setAttribute("aria-expanded", "false");
+    setTimeout(() => {
+      if (!filterPanel.classList.contains("filter-panel--open")) filterPanel.hidden = true;
+    }, 180);
+  }
+
+  filterToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (filterPanel.hidden) openPanel();
+    else closePanel();
+  });
+  document.addEventListener("click", (e) => {
+    if (!filterPanel.hidden && !filterPanel.contains(e.target as Node) && e.target !== filterToggle) {
+      closePanel();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closePanel();
+  });
+
+  filterClear.addEventListener("click", () => {
+    // Leaves the search text box as-is — "clear" only targets the dropdown filters.
+    formatFilter.value = "";
+    costFilter.value = "";
+    activeTags.clear();
+    tagButtons.forEach((btn) => btn.classList.remove("active"));
+    applyFilters();
+  });
 
   search.addEventListener("input", applyFilters);
   formatFilter.addEventListener("change", applyFilters);

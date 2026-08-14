@@ -17,33 +17,46 @@ const upcomingYears = [
 ].sort((a, b) => a - b);
 ---
 
-<header class="nav wrap">
-  <a class="logo" href="/" aria-label="Zaycodes — home">
-    <img src="/images/zaycodes-wordmark-light.png" alt="zaycodes" class="logo-wordmark logo-wordmark--light" height="30" />
-    <img src="/images/zaycodes-wordmark.png" alt="zaycodes" class="logo-wordmark logo-wordmark--dark" height="30" />
-  </a>
-  <span class="brand-sep">/</span>
-  <a class="brand-suffix" href="/">TW Events</a>
-  <nav>
-    <a href="/">Upcoming</a>
-    {upcomingYears.map((year) => (
-      <a href={`/#year-${year}`} class="year-link">{year}</a>
-    ))}
-    <a href="/past">Past</a>
-    <a href="/submit">Submit an event</a>
-    <a href="https://github.com/zaycodes/tw-events-tracker" target="_blank" rel="noopener">GitHub</a>
-    <ThemeToggle />
-  </nav>
+<header class="nav-outer">
+  <div class="nav wrap">
+    <a class="logo" href="/" aria-label="Zaycodes — home">
+      <img src="/images/zaycodes-wordmark-light.png" alt="zaycodes" class="logo-wordmark logo-wordmark--light" height="30" />
+      <img src="/images/zaycodes-wordmark.png" alt="zaycodes" class="logo-wordmark logo-wordmark--dark" height="30" />
+    </a>
+    <span class="brand-sep">/</span>
+    <a class="brand-suffix" href="/">TW Events</a>
+    <nav>
+      <a href="/">Upcoming</a>
+      {upcomingYears.map((year) => (
+        <a href={`/#year-${year}`} class="year-link">{year}</a>
+      ))}
+      <a href="/past">Past</a>
+      <a href="/submit">Submit an event</a>
+      <a href="https://github.com/zaycodes/tw-events-tracker" target="_blank" rel="noopener">GitHub</a>
+      <ThemeToggle />
+    </nav>
+  </div>
 </header>
 
 <style>
+  /* Full-bleed: the background/border spans the whole viewport edge to
+     edge (like a real site header), while .nav (via .wrap) keeps its
+     content aligned to the same centered max-width as the rest of the
+     page — same split used for the homepage hero. */
+  .nav-outer {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
   .nav {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     row-gap: 0.6rem;
-    padding: 1.25rem;
-    border-bottom: 1px solid var(--border);
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
   }
   .logo {
     display: flex;
@@ -76,7 +89,9 @@ const upcomingYears = [
     margin: 0 0.6rem;
   }
   .brand-suffix {
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
     text-decoration: none;
     color: var(--text);
     margin-right: auto;
@@ -100,9 +115,13 @@ const upcomingYears = [
   .year-link {
     font-size: 0.78rem;
     font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border: 1px solid var(--border);
+    padding: 0.2rem 0.6rem;
+    background: var(--accent-wash);
+    color: var(--accent);
     border-radius: 999px;
+  }
+  .year-link:hover {
+    background: var(--tag-bg);
   }
 
   /* Below ~640px the single-row layout doesn't have room for logo + brand
@@ -110,7 +129,8 @@ const upcomingYears = [
      of letting things get clipped at the container edge. */
   @media (max-width: 640px) {
     .nav {
-      padding: 1rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
     }
     .brand-suffix {
       margin-right: 0;

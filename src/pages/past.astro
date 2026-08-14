@@ -26,11 +26,13 @@ const years = [...byYear.keys()].sort((a, b) => b - a);
 ---
 
 <Layout title="Past Events — TW Events">
-  <h1>Past events</h1>
-  <p class="muted">
-    A record of what's already happened — for reference, or in case a recurring edition of one
-    of these is due back on the <a href="/">upcoming list</a>. Most recent first.
-  </p>
+  <header class="page-header">
+    <h1 class="page-title">Past events</h1>
+    <p class="muted">
+      A record of what's already happened — for reference, or in case a recurring edition of one
+      of these is due back on the <a href="/">upcoming list</a>. Most recent first.
+    </p>
+  </header>
 
   <FilterBar tags={TAGS} />
 
@@ -58,6 +60,17 @@ const years = [...byYear.keys()].sort((a, b) => b - a);
 </Layout>
 
 <style>
+  .page-header {
+    padding: 1.75rem 0 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-title {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
   .year-group {
     margin-top: 2rem;
     scroll-margin-top: 1rem;
