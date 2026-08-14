@@ -1,0 +1,345 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  event: CollectionEntry<"events">["data"];
+  /** Renders a plain "ended" card instead of a countdown — for the past-events page, where a
+   * deadline in the past isn't "urgent," it already happened. */
+  pastMode?: boolean;
+}
+
+const { event, pastMode = false } = Astro.props;
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Formats the deadline exactly as the organizer stated it — reading the
+// wall-clock time and offset straight out of the raw string, not through a
+// Date (which only knows the absolute instant, not which offset it was
+// originally written in). This is deterministic regardless of what
+// timezone the build machine runs in.
+function formatOriginal(raw: string) {
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2})?(Z|[+-]\d{2}:\d{2})$/);
+  if (!m) return null;
+  const [, y, mo, d, h, mi, offset] = m;
+  const hour = parseInt(h, 10);
+  const hour12 = hour % 12 || 12;
+  const ampm = hour < 12 ? "AM" : "PM";
+  // -12:00 is conventionally written "AoE" (Anywhere on Earth) in CFP
+  // deadlines — the last timezone on Earth to reach that date, and the
+  // organizer almost certainly phrased it that way, not as "UTC-12:00".
+  const offsetLabel = offset === "Z" ? "UTC" : offset === "-12:00" ? "AoE" : `UTC${offset}`;
+  return `${MONTHS[parseInt(mo, 10) - 1]} ${parseInt(d, 10)}, ${y}, ${hour12}:${mi} ${ampm} ${offsetLabel}`;
+}
+
+const dateRange = event.endDate
+  ? `${fmt(event.startDate)} – ${fmt(event.endDate)}`
+  : fmt(event.startDate);
+
+// Countdown target: nearest actionable deadline if there is one, otherwise
+// the event's own start date. Recurring (yearly) events just get a fresh
+// countdown automatically each time next year's edition is added as its own
+// dated entry — no special-casing needed here.
+//
+// Deadlines are stored as either a bare "YYYY-MM-DD" (date known, exact
+// time not — e.g. most community submissions) or a full ISO datetime in UTC
+// (e.g. "2026-09-11T13:59:00Z", when the organizer's own CFP page gives an
+// exact cutoff). Only the latter gets a "your local time" conversion —
+// rendered client-side below, since the visitor's timezone isn't known at
+// build time. A bare date is shown as-is with no invented time of day.
+const nextDeadlineRaw = event.cfpDeadline ?? event.registrationDeadline;
+const hasPreciseTime = !!nextDeadlineRaw && nextDeadlineRaw.includes("T");
+const nextDeadline = nextDeadlineRaw ? new Date(nextDeadlineRaw) : undefined;
+const deadlineLabel = event.cfpDeadline ? "CFP closes" : "Register by";
+const countdownTarget = nextDeadline ?? event.startDate;
+const countdownLabel = nextDeadline ? deadlineLabel : "Starts";
+const originalText = hasPreciseTime ? formatOriginal(nextDeadlineRaw!) : null;
+
+const msUntil = countdownTarget.getTime() - Date.now();
+const DAY_MS = 24 * 60 * 60 * 1000;
+// critical: due within 24h (or already passed) — soon: due within 14 days but more than 24h out.
+// Never applies in pastMode: an event that already happened isn't "urgent," just over.
+const critical = !pastMode && msUntil <= DAY_MS;
+const soon = !pastMode && !critical && msUntil <= 14 * DAY_MS;
+
+const FORMAT_LABEL: Record<string, string> = {
+  virtual: "Virtual",
+  "in-person": "In-person",
+  hybrid: "Hybrid",
+};
+---
+
+<article
+  class:list={["card", { "card--soon": soon, "card--critical": critical }]}
+  data-tags={[...event.tags, ...(soon || critical ? ["deadline-soon"] : [])].join(",")}
+  data-format={event.format}
+  data-cost={event.cost}
+>
+  <div class="card-head">
+    <span class={`badge-format badge-format--${event.format}`}>{FORMAT_LABEL[event.format]}</span>
+    {pastMode ? (
+      <span class="badge-ended">Ended</span>
+    ) : (
+      <div class="countdown" data-deadline={countdownTarget.toISOString()} aria-live="off">
+        <span class="cd-part"><span class="cd-num" data-unit="primary">–</span><span class="cd-label" data-label="primary"></span></span>
+        <span class="cd-part"><span class="cd-num" data-unit="secondary">–</span><span class="cd-label" data-label="secondary"></span></span>
+      </div>
+    )}
+  </div>
+
+  <h3 class="card-title">
+    <a href={event.url} target="_blank" rel="noopener">{event.name}</a>
+    {!pastMode && <span class="badge-deadline-type">{countdownLabel}</span>}
+  </h3>
+
+  {event.description && <p class="card-desc">{event.description}</p>}
+
+  <div class="card-meta">
+    {!pastMode && (
+      <div class="meta-row">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+        <span class="deadline-block">
+          <span>
+            <strong>{countdownLabel}:</strong> {hasPreciseTime ? originalText : fmt(countdownTarget)}
+          </span>
+          {hasPreciseTime && (
+            <span class="local-time" data-precise={countdownTarget.toISOString()}>· loading your time…</span>
+          )}
+        </span>
+      </div>
+    )}
+    <div class="meta-row">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>{dateRange} · {event.location || FORMAT_LABEL[event.format]} · {event.organizer}</span>
+    </div>
+  </div>
+
+  <div class="tags">
+    {event.tags.map((tag) => <span class="tag">{tag}</span>)}
+  </div>
+</article>
+
+<style>
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    padding: 1.15rem 1.4rem 1.3rem;
+    background: var(--bg-subtle);
+  }
+  .card--soon {
+    border-color: #f59e0b;
+  }
+  .card--critical {
+    border-color: #dc2626;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .badge-format {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.35rem;
+  }
+  .badge-format--virtual { background: #ccfbf1; color: #0f766e; }
+  .badge-format--in-person { background: var(--tag-bg); color: var(--tag-text); }
+  .badge-format--hybrid { background: #fef3c7; color: #92400e;}
+  .badge-ended {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.35rem;
+    background: var(--border);
+    color: var(--text-muted);
+  }
+
+  .countdown {
+    display: flex;
+    gap: 0.6rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .cd-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.05;
+  }
+  .cd-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .card--soon .cd-num {
+    color: #d97706;
+  }
+  .card--critical .cd-num {
+    color: #dc2626;
+  }
+  .cd-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+  .card-title a {
+    text-decoration: none;
+    color: var(--text);
+  }
+  .card-title a:hover {
+    text-decoration: underline;
+  }
+  .badge-deadline-type {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+  }
+
+  .card-desc {
+    margin: 0 0 0.7rem;
+    font-size: 0.87rem;
+    color: var(--text-muted);
+    font-style: italic;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+  }
+  .meta-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .meta-row .icon {
+    margin-top: 0.15rem;
+  }
+  .meta-row strong {
+    color: var(--text);
+  }
+  .deadline-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .local-time {
+    font-size: 0.78rem;
+    color: var(--accent);
+  }
+  .icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  .tags {
+    margin-top: 0.75rem;
+  }
+</style>
+
+<script>
+  function formatUnit(n: number, unit: string) {
+    return { value: String(n), label: n === 1 ? unit.replace(/s$/, "") : unit };
+  }
+
+  function computeParts(target: Date) {
+    const diff = target.getTime() - Date.now();
+    if (diff <= 0) return null;
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) return [formatUnit(days, "days"), formatUnit(hours, "hrs")];
+    if (hours > 0) return [formatUnit(hours, "hrs"), formatUnit(minutes, "min")];
+    return [formatUnit(minutes, "min"), formatUnit(seconds, "sec")];
+  }
+
+  function updateCountdowns() {
+    document.querySelectorAll<HTMLElement>(".countdown[data-deadline]").forEach((el) => {
+      const target = new Date(el.dataset.deadline!);
+      const parts = computeParts(target);
+      const nums = el.querySelectorAll<HTMLElement>(".cd-num");
+      const labels = el.querySelectorAll<HTMLElement>(".cd-label");
+
+      if (!parts) {
+        nums[0].textContent = "";
+        labels[0].textContent = "Passed";
+        nums[1].textContent = "";
+        labels[1].textContent = "";
+        return;
+      }
+
+      parts.forEach((part, i) => {
+        nums[i].textContent = part.value;
+        labels[i].textContent = part.label;
+      });
+    });
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+
+  // The organizer's original stated time is server-rendered (see
+  // formatOriginal in the frontmatter — it's just string parsing, no
+  // timezone ambiguity). This adds a second, live-computed line converting
+  // that same instant to the visitor's own timezone (toLocaleString with no
+  // explicit `timeZone` uses the browser's local one), which can only be
+  // known client-side.
+  function localizeDeadlines() {
+    document.querySelectorAll<HTMLElement>(".local-time[data-precise]").forEach((el) => {
+      const target = new Date(el.dataset.precise!);
+      const formatted = target.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+      });
+      el.textContent = `· ${formatted} your time`;
+    });
+  }
+
+  localizeDeadlines();
+</script>

@@ -1,0 +1,28 @@
+name: Build check
+
+# Netlify handles the actual deploy (connected directly to this repo). This
+# workflow just verifies `astro build` succeeds — which validates every event
+# file against the content collection schema — before a PR is merged.
+#
+# Note: PRs opened by weekly-scrape.yml / issue-to-pr.yml using the default
+# GITHUB_TOKEN won't trigger this workflow (GitHub blocks workflows from
+# triggering other workflows via the default token). Review those event
+# files manually, or swap in a PAT for create-pull-request if you want this
+# check to run on them automatically.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - run: npm install
+      - run: npm run build

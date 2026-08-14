@@ -1,0 +1,44 @@
+<footer class="wrap footer">
+  <a href="https://zaycodes.com" target="_blank" rel="noopener" aria-label="Zaycodes" class="footer-logo">
+    <img src="/images/zaycodes-wordmark-light.png" alt="zaycodes" class="footer-wordmark footer-wordmark--light" height="24" />
+    <img src="/images/zaycodes-wordmark.png" alt="zaycodes" class="footer-wordmark footer-wordmark--dark" height="24" />
+  </a>
+  <p class="muted">
+    Curated by <a href="https://zaycodes.com" target="_blank" rel="noopener">Zaycodes</a> and the community.
+    Missing an event? <a href="/submit">Submit it</a> or
+    <a href="https://github.com/zaycodes/tw-events-tracker/issues/new?template=submit-event.yml" target="_blank" rel="noopener">open an issue</a>.
+  </p>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+    font-size: 0.85rem;
+  }
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+  .footer-wordmark {
+    height: 24px;
+    width: auto;
+    display: block;
+  }
+  .footer-wordmark--dark {
+    display: none;
+  }
+  :global(html[data-theme="dark"]) .footer-wordmark--light {
+    display: none;
+  }
+  :global(html[data-theme="dark"]) .footer-wordmark--dark {
+    display: block;
+  }
+</style>

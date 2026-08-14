@@ -1,0 +1,84 @@
+name: Submit an event
+description: Suggest a conference, meetup, webinar, CFP, or mentorship program for the tracker.
+title: "Event submission: "
+labels: ["event-submission"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Event name
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Link
+      placeholder: "https://"
+    validations:
+      required: true
+  - type: input
+    id: organizer
+    attributes:
+      label: Organizer
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Format
+      options:
+        - virtual
+        - in-person
+        - hybrid
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location (if in-person or hybrid)
+  - type: input
+    id: startDate
+    attributes:
+      label: Start date
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true
+  - type: input
+    id: endDate
+    attributes:
+      label: End date
+      placeholder: "YYYY-MM-DD"
+  - type: input
+    id: cfpDeadline
+    attributes:
+      label: CFP / call for speakers deadline
+      placeholder: "YYYY-MM-DD"
+  - type: input
+    id: registrationDeadline
+    attributes:
+      label: Registration deadline
+      placeholder: "YYYY-MM-DD"
+  - type: dropdown
+    id: cost
+    attributes:
+      label: Cost
+      options:
+        - unknown
+        - free
+        - paid
+  - type: input
+    id: tags
+    attributes:
+      label: Tags (comma-separated)
+      placeholder: "technical-writing, no-code, mentorship, cfp-open, community-meetup..."
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: This event is relevant to technical writers, documentarians, or the no-code/DevRel community.
+          required: true

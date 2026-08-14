@@ -1,0 +1,61 @@
+---
+// Sun/moon button that flips [data-theme] on <html> and persists the choice
+// to localStorage. Default is always light (set by the inline script in
+// Layout.astro's <head>, which runs before paint) regardless of OS
+// preference — only an explicit click switches to dark.
+---
+<button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+  <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+  </svg>
+  <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Light theme (default): show the moon — click to switch to dark. */
+  .icon-sun { display: none; }
+
+  /* Dark theme: show the sun — click to switch back to light. */
+  :global(html[data-theme="dark"]) .icon-moon { display: none; }
+  :global(html[data-theme="dark"]) .icon-sun { display: block; }
+</style>
+
+<script>
+  function syncButton(btn: Element) {
+    const isDark = document.documentElement.dataset.theme === "dark";
+    btn.setAttribute("aria-pressed", String(isDark));
+    btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  }
+
+  const buttons = document.querySelectorAll(".theme-toggle");
+  buttons.forEach(syncButton);
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("theme", next);
+      buttons.forEach(syncButton);
+    });
+  });
+</script>

@@ -1,0 +1,45 @@
+name: Weekly event scrape
+
+on:
+  schedule:
+    # Mondays 06:00 UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run scraper
+        run: node scripts/scrape.mjs
+
+      - name: Check for new events
+        id: check
+        run: |
+          if git status --porcelain src/content/events | grep -q '^??'; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR
+        if: steps.check.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Add events found by weekly scrape"
+          branch: "scrape/weekly-${{ github.run_number }}"
+          title: "Weekly scrape: new candidate events"
+          body: |
+            Automated find from this week's scrape run. Review each event file before merging —
+            nothing here is published until this PR is approved and merged.
+          labels: automated-scrape

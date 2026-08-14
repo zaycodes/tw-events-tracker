@@ -1,0 +1,141 @@
+---
+interface Props {
+  tags: readonly string[];
+}
+const { tags } = Astro.props;
+---
+
+<div class="filters">
+  <input id="search" type="search" placeholder="Search events…" aria-label="Search events" />
+
+  <select id="format-filter" aria-label="Filter by format">
+    <option value="">All formats</option>
+    <option value="virtual">Virtual</option>
+    <option value="in-person">In-person</option>
+    <option value="hybrid">Hybrid</option>
+  </select>
+
+  <select id="cost-filter" aria-label="Filter by cost">
+    <option value="">Any cost</option>
+    <option value="free">Free</option>
+    <option value="paid">Paid</option>
+    <option value="unknown">Unknown</option>
+  </select>
+</div>
+
+<div class="tag-filters" id="tag-filters">
+  <button type="button" class="tag-toggle tag-toggle--urgent" data-tag="deadline-soon">⏰ Deadline soon</button>
+  {tags.map((tag) => (
+    <button type="button" class="tag-toggle" data-tag={tag}>{tag}</button>
+  ))}
+</div>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0.75rem;
+  }
+  .filters input,
+  .filters select {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--bg);
+    color: var(--text);
+  }
+  #search {
+    flex: 1;
+    min-width: 180px;
+  }
+  .tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .tag-toggle {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-muted);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .tag-toggle.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+  }
+  .tag-toggle--urgent {
+    border-color: #f59e0b;
+    color: #92400e;
+  }
+  .tag-toggle--urgent.active {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #1c1917;
+  }
+</style>
+
+<script>
+  const search = document.getElementById("search") as HTMLInputElement;
+  const formatFilter = document.getElementById("format-filter") as HTMLSelectElement;
+  const costFilter = document.getElementById("cost-filter") as HTMLSelectElement;
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>(".tag-toggle");
+  const cards = document.querySelectorAll<HTMLElement>(".card");
+  const emptyState = document.getElementById("empty-state");
+
+  const activeTags = new Set<string>();
+
+  function applyFilters() {
+    const query = search.value.trim().toLowerCase();
+    const format = formatFilter.value;
+    const cost = costFilter.value;
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const cardTags = (card.dataset.tags ?? "").split(",");
+      const matchesQuery = !query || card.textContent!.toLowerCase().includes(query);
+      const matchesFormat = !format || card.dataset.format === format;
+      const matchesCost = !cost || card.dataset.cost === cost;
+      const matchesTags = activeTags.size === 0 || [...activeTags].every((t) => cardTags.includes(t));
+
+      const visible = matchesQuery && matchesFormat && matchesCost && matchesTags;
+      card.style.display = visible ? "" : "none";
+      if (visible) visibleCount++;
+    });
+
+    document.querySelectorAll<HTMLElement>(".month-group").forEach((group) => {
+      const hasVisibleCard = group.querySelector<HTMLElement>(".card:not([style*='display: none'])");
+      group.style.display = hasVisibleCard ? "" : "none";
+    });
+    document.querySelectorAll<HTMLElement>(".year-group").forEach((group) => {
+      const hasVisibleCard = group.querySelector<HTMLElement>(".card:not([style*='display: none'])");
+      group.style.display = hasVisibleCard ? "" : "none";
+    });
+
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? "block" : "none";
+    }
+  }
+
+  search.addEventListener("input", applyFilters);
+  formatFilter.addEventListener("change", applyFilters);
+  costFilter.addEventListener("change", applyFilters);
+  tagButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag!;
+      if (activeTags.has(tag)) {
+        activeTags.delete(tag);
+        btn.classList.remove("active");
+      } else {
+        activeTags.add(tag);
+        btn.classList.add("active");
+      }
+      applyFilters();
+    });
+  });
+</script>
