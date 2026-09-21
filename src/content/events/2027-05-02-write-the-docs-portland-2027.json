@@ -1,0 +1,19 @@
+{
+  "name": "Write the Docs Portland 2027",
+  "url": "https://www.writethedocs.org/conf/portland/2027/",
+  "organizer": "Write the Docs",
+  "format": "in-person",
+  "location": "Portland, Oregon",
+  "startDate": "2027-05-02",
+  "endDate": "2027-05-04",
+  "cost": "unknown",
+  "tags": [
+    "technical-writing",
+    "documentation",
+    "conference",
+    "community-meetup"
+  ],
+  "description": "Community-run conference for people who care about documentation.",
+  "source": "scraped",
+  "addedDate": "2026-09-21"
+}
