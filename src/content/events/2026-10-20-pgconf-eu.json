@@ -1,0 +1,16 @@
+{
+  "name": "PGconf.EU",
+  "url": "https://2026.pgconf.eu",
+  "organizer": "PGconf.EU",
+  "format": "in-person",
+  "location": "Valencia, Spain",
+  "startDate": "2026-10-20",
+  "endDate": "2026-10-23",
+  "tags": [
+    "open-source",
+    "conference"
+  ],
+  "cost": "unknown",
+  "source": "scraped",
+  "addedDate": "2026-09-28"
+}
