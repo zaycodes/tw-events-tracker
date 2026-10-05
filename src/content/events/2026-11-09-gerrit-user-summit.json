@@ -1,0 +1,18 @@
+{
+  "name": "Gerrit User Summit",
+  "url": "https://gus26.gerritforge.com",
+  "organizer": "Gerrit User Summit",
+  "format": "in-person",
+  "location": "San Francisco, CA, U.S.A.",
+  "startDate": "2026-11-09",
+  "endDate": "2026-11-10",
+  "cfpDeadline": "2026-09-18",
+  "tags": [
+    "open-source",
+    "conference",
+    "cfp-open"
+  ],
+  "cost": "unknown",
+  "source": "scraped",
+  "addedDate": "2026-10-05"
+}
