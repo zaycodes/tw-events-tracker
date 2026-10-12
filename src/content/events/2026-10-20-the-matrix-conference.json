@@ -1,0 +1,18 @@
+{
+  "name": "The Matrix Conference",
+  "url": "https://conference.matrix.org",
+  "organizer": "The Matrix Conference",
+  "format": "in-person",
+  "location": "Malmö, Sweden",
+  "startDate": "2026-10-20",
+  "endDate": "2026-10-23",
+  "cfpDeadline": "2026-09-28",
+  "tags": [
+    "open-source",
+    "conference",
+    "cfp-open"
+  ],
+  "cost": "unknown",
+  "source": "scraped",
+  "addedDate": "2026-10-12"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Ubuntu Summit",
+  "url": "https://ubuntu.com/summit",
+  "organizer": "Ubuntu Summit",
+  "format": "virtual",
+  "startDate": "2026-11-12",
+  "endDate": "2026-11-13",
+  "cfpDeadline": "2026-10-01",
+  "tags": [
+    "open-source",
+    "conference",
+    "cfp-open"
+  ],
+  "cost": "unknown",
+  "source": "scraped",
+  "addedDate": "2026-10-12"
+}
