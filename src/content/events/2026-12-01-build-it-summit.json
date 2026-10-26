@@ -1,0 +1,18 @@
+{
+  "name": "Build It Summit",
+  "url": "https://builditsummit.com",
+  "organizer": "Build It Summit",
+  "format": "in-person",
+  "location": "Paris, France",
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-03",
+  "cfpDeadline": "2026-10-31",
+  "tags": [
+    "open-source",
+    "conference",
+    "cfp-open"
+  ],
+  "cost": "unknown",
+  "source": "scraped",
+  "addedDate": "2026-10-26"
+}
